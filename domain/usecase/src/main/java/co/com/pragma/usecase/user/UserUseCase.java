@@ -8,24 +8,26 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.math.BigInteger;
-import static co.com.pragma.usecase.user.UserValidator.validateUser;
 
 @RequiredArgsConstructor
 public class UserUseCase {
     private final UserRepository repository;
+    private final UserValidator userValidator;
 
     //@Transactional
     public Mono<User> saveUser(User user) {
-        validateUser(user);
+        userValidator.validateUser(user);
+
         return repository.findByEmail(user.getEmail())
                 .flatMap(existingUser -> Mono.<User>error(new UserEmailAlreadyExistsException(user.getEmail())))
-                .switchIfEmpty(repository.saveUser(user));
+                .switchIfEmpty(Mono.defer(() -> repository.saveUser(user)));
+
     }
 
 
     //@Transactional
     public Mono<User> updateUser(User user) {
-        validateUser(user);
+        userValidator.validateUser(user);
         return repository.update(user);
     }
 
