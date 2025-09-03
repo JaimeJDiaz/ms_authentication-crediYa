@@ -1,5 +1,7 @@
 package co.com.pragma.config;
 
+import co.com.pragma.r2dbc.Slf4jLogAdapter;
+import co.com.pragma.usecase.user.UserUseCase;
 import co.com.pragma.usecase.user.UserValidator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -16,5 +18,10 @@ public class UseCasesConfig {
     @Bean
     public UserValidator userValidator() {
         return new UserValidator();
+    }
+
+    @Bean
+    public Slf4jLogAdapter slf4jLogAdapter() {
+        return new Slf4jLogAdapter(UserUseCase.class);
     }
 }
