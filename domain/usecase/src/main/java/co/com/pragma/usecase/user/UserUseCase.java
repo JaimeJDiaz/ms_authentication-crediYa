@@ -20,12 +20,17 @@ public class UserUseCase {
     private final UserValidator userValidator;
     private final LogPort log;
 
+    public static final Integer DEFAULT_ROLE = 2; //default role for customer
+
+
     public Mono<User> saveUser(User user) {
         log.info(SAVING_USER);
         return Mono.just(user)
                 .flatMap(userToValidate -> {
+                    log.info(user.toString());
                     userValidator.validateUser(userToValidate);
                     log.debug(USER_VALIDATION_PASSED);
+                    userToValidate.setRole(DEFAULT_ROLE);
                     return Mono.just(userToValidate);
                 })
                 .flatMap(validatedUser ->
@@ -34,10 +39,8 @@ public class UserUseCase {
                                     log.error(USER_ALREADY_EXISTS);
                                     return Mono.<User>error(new UserEmailAlreadyExistsException(validatedUser.getEmail()));
                                 })
-                                .switchIfEmpty(Mono.defer(() -> {
-                                    return repository.saveUser(validatedUser)
-                                            .doOnSuccess(savedUser -> log.info(USER_SAVED));
-                                }))
+                                .switchIfEmpty(Mono.defer(() -> repository.saveUser(validatedUser)
+                                        .doOnSuccess(savedUser -> log.info(USER_SAVED))))
                 );
     }
 
@@ -52,7 +55,10 @@ public class UserUseCase {
                 })
                 .flatMap(validatedUser ->
                         repository.findById(validatedUser.getId())
-                                .flatMap(existingUser -> repository.update(validatedUser))
+                                .flatMap(existingUser -> {
+                                    validatedUser.setRole(existingUser.getRole());
+                                    return repository.update(validatedUser);
+                                })
                                 .switchIfEmpty(Mono.error(new UserNotFoundException("User with ID " + validatedUser.getId() + " not found")))
                 );
     }
@@ -73,6 +79,12 @@ public class UserUseCase {
         if (email == null || email.isBlank()) throw new ValidationException(List.of(EMAIL_REQUIRED));
         return repository.findByEmail(email)
                 .switchIfEmpty(Mono.error(new UserNotFoundException(ERROR_FETCHING_USER_BY_EMAIL)));
+    }
+
+    public Mono<User> getUserByDocumentId(String documentId) {
+        if (documentId == null || documentId.isBlank()) throw new ValidationException(List.of("DocumentId is required"));
+        return repository.findByDocumentId(documentId)
+                .switchIfEmpty(Mono.error(new UserNotFoundException("No se encontró usuario con el documento proporcionado")));
     }
 
     public Flux<User> getAllUsers() {

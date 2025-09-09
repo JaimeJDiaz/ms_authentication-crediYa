@@ -25,7 +25,7 @@ public class OpenApiConfig {
                     operation.setOperationId(handlerMethod.getMethod().getName());
                 }
                 if (operation.getTags() == null || operation.getTags().isEmpty()) {
-                    operation.addTagsItem("Usuarios");
+                    operation.addTagsItem("Users");
                 }
             }
             return operation;

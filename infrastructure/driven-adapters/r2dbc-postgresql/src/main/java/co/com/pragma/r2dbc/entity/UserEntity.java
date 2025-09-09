@@ -1,19 +1,16 @@
 package co.com.pragma.r2dbc.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
 
-@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
@@ -21,15 +18,23 @@ import java.time.LocalDate;
 public class UserEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private BigInteger id;
 
     String firstName;
-    String lastName;
-    LocalDate birthDate;
+
+    String lastName;LocalDate birthDate;
+
+    @Column("document_id")
+    String documentId;
+
     String address;
+
     String phone;
+
     String email;
+
     BigDecimal salary;
+
+    Integer role;
 }
 

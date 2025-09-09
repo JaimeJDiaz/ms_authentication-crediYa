@@ -94,6 +94,20 @@ public class RouterRest {
                                     @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
                             }
                     )
+            ),
+            @RouterOperation(path = "/api/v1/usuarios/documento/{documentId}", produces = "application/json", method = RequestMethod.GET,
+                    beanClass = Handler.class, beanMethod = "listenGetUserByDocumentId",
+                    operation = @Operation(
+                            operationId = "getUserByDocumentId",
+                            summary = "Obtiene un usuario por su documento",
+                            tags = {"Usuarios"},
+                            parameters = @Parameter(name = "documentId", description = "Documento del usuario", required = true, schema = @Schema(implementation = String.class)),
+                            responses = {
+                                    @ApiResponse(responseCode = "200", description = "Usuario encontrado",
+                                            content = @Content(schema = @Schema(implementation = User.class))),
+                                    @ApiResponse(responseCode = "404", description = "Usuario no encontrado")
+                            }
+                    )
             )
     })
 
@@ -105,7 +119,7 @@ public class RouterRest {
                 .GET("/api/v1/usuarios/{id}", handler::listenGetUser)
                 .GET("/api/v1/usuarios", handler::listenGetAllUsers)
                 .DELETE("/api/v1/usuarios/{id}", handler::listenDeleteUser)
+                .GET("/api/v1/usuarios/documento/{documentId}", handler::listenGetUserByDocumentId)
                 .build();
     }
 }
-

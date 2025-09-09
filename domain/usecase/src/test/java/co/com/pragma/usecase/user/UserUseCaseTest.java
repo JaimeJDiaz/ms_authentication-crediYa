@@ -84,8 +84,8 @@ class UserUseCaseTest {
 
     @Test
     void shouldUpdateUserSuccessfully() {
-        User userToUpdate = new User(BigInteger.TWO,"Jaime", "Diaz", LocalDate.of(2002, 10, 5), "my address", "1234567890", "asd@asdf.com", BigDecimal.TEN);
-        User updatedUser = new User(BigInteger.TWO,"Jaime Updated", "Diaz", LocalDate.of(2002, 10, 5), "my address", "1234567890", "asd@asdf.com", BigDecimal.TEN);
+        User userToUpdate = new User(BigInteger.TWO,"Jaime", "Diaz", "12365478", LocalDate.of(2002, 10, 5), "my address", "1234567890", "asd@asdf.com", BigDecimal.TEN, 2);
+        User updatedUser = new User(BigInteger.TWO,"Jaime Updated", "Diaz", "12365478", LocalDate.of(2002, 10, 5), "my address", "1234567890", "asd@asdf.com", BigDecimal.TEN, 2);
 
         doNothing().when(validator).validateUser(any(User.class));
         when(repository.findById(any(BigInteger.class))).thenReturn(Mono.just(sampleUser));
@@ -114,8 +114,8 @@ class UserUseCaseTest {
     @Test
     void shouldReturnAllUsers() {
         List<User> users = List.of(
-                new User(BigInteger.ONE, "Jose", "Diaz", LocalDate.of(2002, 10, 5), "my address", "1234567890", "aqwe@asdf.com", BigDecimal.TEN),
-                new User(BigInteger.TWO,"Jaime", "Diaz", LocalDate.of(2002, 10, 5), "my address", "1234567890", "asd@asdf.com", BigDecimal.TEN)
+                new User(BigInteger.ONE, "Jose", "Diaz", "12365478", LocalDate.of(2002, 10, 5), "my address", "1234567890", "aqwe@asdf.com", BigDecimal.TEN, 2),
+                new User(BigInteger.TWO,"Jaime", "Diaz", "12365478", LocalDate.of(2002, 10, 5), "my address", "1234567890", "asd@asdf.com", BigDecimal.TEN, 2)
         );
 
         when(repository.findAll()).thenReturn(Flux.fromIterable(users));

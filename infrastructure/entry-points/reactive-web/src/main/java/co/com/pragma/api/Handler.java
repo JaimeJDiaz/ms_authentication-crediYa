@@ -48,6 +48,15 @@ public class Handler {
         }
     }
 
+    public Mono<ServerResponse> listenGetUserByDocumentId(ServerRequest serverRequest) {
+        String documentId = serverRequest.pathVariable("documentId");
+        return transactionalOperator.transactional(userUseCase.getUserByDocumentId(documentId))
+                .flatMap(user -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(user))
+                .switchIfEmpty(ServerResponse.notFound().build());
+    }
+
     public Mono<ServerResponse> listenGetAllUsers(ServerRequest serverRequest) {
         Flux<User> userFlux = transactionalOperator.transactional(userUseCase.getAllUsers());
         return ServerResponse.ok()

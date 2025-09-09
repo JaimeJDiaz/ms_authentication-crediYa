@@ -28,12 +28,15 @@ public class UserValidator {
             if (validateEmailNotNull(user.getEmail())) errors.add(EMAIL_REQUIRED);
             if (validateEmail(user.getEmail())) errors.add(EMAIL_INVALID);
             if (validateSalary(user.getSalary())) errors.add(SALARY_OUT_OF_RANGE);
+            if (validateDocumentId(user.getDocumentId())) errors.add(DOCUMENT_ID_REQUIRED);
         }
 
         if (!errors.isEmpty()) {
             throw new ValidationException(errors);
         }
     }
+
+    private boolean validateDocumentId(String documentId) { return (documentId == null || documentId.isEmpty());    }
 
     private boolean validateFirstName(String firstName) {
         return (firstName == null || firstName.isEmpty());

@@ -38,6 +38,7 @@ public class LogMessages {
     public static final String ADDRESS_REQUIRED = "Address is required";
     public static final String PHONE_REQUIRED = "Phone is required";
     public static final String EMAIL_REQUIRED = "Valid email is required";
+    public static final String DOCUMENT_ID_REQUIRED = "Document ID is required";
 
     public static final String FIRST_NAME_BLANK = "Validation failed: first name is blank";
     public static final String LAST_NAME_BLANK = "Validation failed: last name is blank";
