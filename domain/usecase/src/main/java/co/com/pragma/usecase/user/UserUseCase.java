@@ -63,10 +63,6 @@ public class UserUseCase {
                 );
     }
 
-    public Mono<Void> deleteUser(BigInteger id) {
-        return repository.deleteById(id);
-    }
-
     public Mono<User> getUser(BigInteger id) {
         if (id == null) throw new ValidationException(List.of("Id is required"));
         return repository.findById(id)
@@ -89,9 +85,9 @@ public class UserUseCase {
         return repository.findAll();
     }
 
-    public Mono<User> getUserByIdentification(String identification) {
-        if (identification == null || identification.isBlank()) throw new ValidationException(List.of("identification is required"));
-        return repository.findByIdentification(identification)
+    public Mono<User> getUserByIdentification(String documentId) {
+        if (documentId == null || documentId.isBlank()) throw new ValidationException(List.of("identification is required"));
+        return repository.findByDocumentId(documentId)
                 .switchIfEmpty(Mono.error(new UserNotFoundException("ERROR_FETCHING_USER_BY_IDENTIFICATION")));
     }
 }

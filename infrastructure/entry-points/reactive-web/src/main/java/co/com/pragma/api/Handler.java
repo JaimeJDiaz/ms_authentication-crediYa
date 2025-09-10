@@ -65,7 +65,7 @@ public class Handler {
     }
 
     public Mono<ServerResponse> listenGetUserByIdentification(ServerRequest serverRequest) {
-        String identification = serverRequest.pathVariable("identification");
+        String identification = serverRequest.pathVariable("identificacion");
         return transactionalOperator.transactional(userUseCase.getUserByIdentification(identification))
                 .flatMap(user -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
