@@ -1,10 +1,8 @@
 package co.com.pragma.usecase.user;
 
 import co.com.pragma.model.user.User;
-import co.com.pragma.model.user.gateways.LogPort;
 import co.com.pragma.model.user.gateways.UserRepository;
 import co.com.pragma.usecase.user.exceptions.UserEmailAlreadyExistsException;
-import co.com.pragma.usecase.user.exceptions.UserNotFoundException;
 import co.com.pragma.usecase.user.exceptions.ValidationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,10 +15,10 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,9 +29,6 @@ class UserUseCaseTest {
 
     @Mock
     private UserValidator validator;
-
-    @Mock
-    private LogPort logPort;
 
     @InjectMocks
     private UserUseCase useCase;
@@ -84,38 +79,39 @@ class UserUseCaseTest {
 
     @Test
     void shouldUpdateUserSuccessfully() {
-        User userToUpdate = new User(BigInteger.TWO,"Jaime", "Diaz", "12365478", LocalDate.of(2002, 10, 5), "my address", "1234567890", "asd@asdf.com", BigDecimal.TEN, 2);
-        User updatedUser = new User(BigInteger.TWO,"Jaime Updated", "Diaz", "12365478", LocalDate.of(2002, 10, 5), "my address", "1234567890", "asd@asdf.com", BigDecimal.TEN, 2);
+        doNothing().when(validator).validateUser(sampleUser);
+        when(repository.update(sampleUser)).thenReturn(Mono.just(sampleUser));
 
-        doNothing().when(validator).validateUser(any(User.class));
-        when(repository.findById(any(BigInteger.class))).thenReturn(Mono.just(sampleUser));
-        when(repository.update(any(User.class))).thenReturn(Mono.just(updatedUser));
-
-        StepVerifier.create(useCase.updateUser(userToUpdate))
-                .expectNext(updatedUser)
+        StepVerifier.create(useCase.updateUser(sampleUser))
+                    .expectNext(sampleUser)
                 .verifyComplete();
+
+        verify(validator).validateUser(sampleUser);
+        verify(repository).update(sampleUser);
     }
 
     @Test
     void shouldFailImmediatelyWhenValidationThrowsException() {
         List<String> errors = List.of("First name is required");
         ValidationException exception = new ValidationException(errors);
-        User invalidUser = new User();
-        doThrow(exception).when(validator).validateUser(invalidUser);
 
+        doThrow(exception).when(validator).validateUser(sampleUser);
 
-        StepVerifier.create(useCase.saveUser(invalidUser))
-                .expectError(ValidationException.class)
-                .verify();
+        ValidationException thrown = assertThrows(
+                ValidationException.class,
+                () -> useCase.saveUser(sampleUser)
+        );
 
+        assertEquals(errors, thrown.getErrors());
+        verify(validator).validateUser(sampleUser);
         verify(repository, never()).findByEmail(any());
     }
 
     @Test
     void shouldReturnAllUsers() {
         List<User> users = List.of(
-                new User(BigInteger.ONE, "Jose", "Diaz", "12365478", LocalDate.of(2002, 10, 5), "my address", "1234567890", "aqwe@asdf.com", BigDecimal.TEN, 2),
-                new User(BigInteger.TWO,"Jaime", "Diaz", "12365478", LocalDate.of(2002, 10, 5), "my address", "1234567890", "asd@asdf.com", BigDecimal.TEN, 2)
+                new User("Jose", "Diaz", LocalDate.of(2002, 10, 5), "my address", "1234567890", "aqwe@asdf.com", BigDecimal.TEN),
+                new User("Jaime", "Diaz", LocalDate.of(2002, 10, 5), "my address", "1234567890", "asd@asdf.com", BigDecimal.TEN)
         );
 
         when(repository.findAll()).thenReturn(Flux.fromIterable(users));
@@ -144,14 +140,10 @@ class UserUseCaseTest {
 
     @Test
     void shouldReturnEmptyWhenEmailDoesNotExist() {
-        String email = "nonexistent@example.com";
-        when(repository.findByEmail(anyString())).thenReturn(Mono.empty());
+        when(repository.findByEmail(sampleUser.getEmail())).thenReturn(Mono.empty());
 
-        // Act & Assert
-        // El StepVerifier ahora espera que se lance una excepción
-        StepVerifier.create(useCase.getUserByEmail(email))
-                .expectError(UserNotFoundException.class)
-                .verify();
+        StepVerifier.create(useCase.getUserByEmail(sampleUser.getEmail()))
+                .verifyComplete(); // No error, solo vacío
     }
 
 
