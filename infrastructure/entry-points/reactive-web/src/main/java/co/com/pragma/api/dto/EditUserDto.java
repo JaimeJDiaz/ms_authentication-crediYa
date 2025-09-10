@@ -4,5 +4,14 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
 
-public record EditUserDto(BigInteger id, String firstName, String lastName, LocalDate birthDate, String address, String phone, String email, BigDecimal salary) {
+public record EditUserDto(
+        BigInteger id,
+        String firstName,
+        String lastName,
+        String identification,
+        LocalDate birthDate,
+        String address,
+        String phone,
+        String email,
+        BigDecimal salary) {
 }

@@ -41,6 +41,12 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<User,
     }
 
     @Override
+    public Mono<User> findByIdentification(String identification) {
+        return super.repository.findByIdentification(identification)
+                .map(entity -> super.mapper.map(entity, User.class));
+    }
+
+    @Override
     public Flux<User> findAll() {
         return super.repository.findAll()
                 .map(entity -> super.mapper.map(entity, User.class));

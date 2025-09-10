@@ -34,10 +34,8 @@ public class UserUseCase {
                                     log.error(USER_ALREADY_EXISTS);
                                     return Mono.<User>error(new UserEmailAlreadyExistsException(validatedUser.getEmail()));
                                 })
-                                .switchIfEmpty(Mono.defer(() -> {
-                                    return repository.saveUser(validatedUser)
-                                            .doOnSuccess(savedUser -> log.info(USER_SAVED));
-                                }))
+                                .switchIfEmpty(Mono.defer(() -> repository.saveUser(validatedUser)
+                                        .doOnSuccess(savedUser -> log.info(USER_SAVED))))
                 );
     }
 
@@ -58,9 +56,7 @@ public class UserUseCase {
     }
 
     public Mono<Void> deleteUser(BigInteger id) {
-        return repository.deleteById(id)
-                .flatMap(existingUser -> repository.deleteById(id))
-                .switchIfEmpty(Mono.error(new UserNotFoundException("User with ID " + id + " not found")));
+        return repository.deleteById(id);
     }
 
     public Mono<User> getUser(BigInteger id) {
@@ -77,5 +73,11 @@ public class UserUseCase {
 
     public Flux<User> getAllUsers() {
         return repository.findAll();
+    }
+
+    public Mono<User> getUserByIdentification(String identification) {
+        if (identification == null || identification.isBlank()) throw new ValidationException(List.of("identification is required"));
+        return repository.findByIdentification(identification)
+                .switchIfEmpty(Mono.error(new UserNotFoundException("ERROR_FETCHING_USER_BY_IDENTIFICATION")));
     }
 }

@@ -16,6 +16,7 @@ public class RouterRest {
                 .POST("/api/v1/usuarios/update", handler::listenUpdateUser)
                 .GET("/api/v1/usuarios/{id}", handler::listenGetUser)
                 .GET("/api/v1/usuarios", handler::listenGetAllUsers)
+                .GET("/api/v1/usuarios/identificacion/{identificacion}", handler::listenGetUserByIdentification)
                 .build();
     }
 }

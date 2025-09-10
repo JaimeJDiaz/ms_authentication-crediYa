@@ -26,6 +26,7 @@ public class UserEntity {
 
     String firstName;
     String lastName;
+    String identification;
     LocalDate birthDate;
     String address;
     String phone;

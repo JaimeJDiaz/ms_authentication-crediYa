@@ -18,6 +18,7 @@ public class User {
     private BigInteger id;
     private String firstName;
     private String lastName;
+    private String identification;
     private LocalDate birthDate;
     private String address;
     private String phone;
