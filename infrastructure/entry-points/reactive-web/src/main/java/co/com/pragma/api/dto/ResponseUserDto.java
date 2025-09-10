@@ -7,12 +7,10 @@ public record ResponseUserDto(
         BigDecimal id,
         String firstName,
         String lastName,
-        String documentId,
+        String identification,
         LocalDate birthDate,
         String address,
         String phone,
         String email,
-        BigDecimal salary,
-        Integer role
-) {
+        BigDecimal salary) {
 }

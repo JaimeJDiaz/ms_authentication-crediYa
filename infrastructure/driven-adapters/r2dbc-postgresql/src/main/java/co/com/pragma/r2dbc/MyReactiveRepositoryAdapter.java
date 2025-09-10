@@ -41,8 +41,8 @@ public class MyReactiveRepositoryAdapter extends ReactiveAdapterOperations<User,
     }
 
     @Override
-    public Mono<User> findByDocumentId(String documentId) {
-        return super.repository.findByDocumentId(documentId)
+    public Mono<User> findByIdentification(String identification) {
+        return super.repository.findByIdentification(identification)
                 .map(entity -> super.mapper.map(entity, User.class));
     }
 

@@ -8,11 +8,10 @@ public record EditUserDto(
         BigInteger id,
         String firstName,
         String lastName,
-        String documentId,
+        String identification,
         LocalDate birthDate,
         String address,
         String phone,
         String email,
-        BigDecimal salary
-) {
+        BigDecimal salary) {
 }

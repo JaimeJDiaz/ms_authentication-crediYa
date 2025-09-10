@@ -19,5 +19,5 @@ public interface UserRepository {
 
     Mono<Void> deleteById(BigInteger id);
 
-    Mono<User> findByDocumentId(String documentId);
+    Mono<User> findByIdentification(String identification);
 }

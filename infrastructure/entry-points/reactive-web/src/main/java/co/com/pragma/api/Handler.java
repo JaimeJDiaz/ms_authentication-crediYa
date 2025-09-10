@@ -64,10 +64,14 @@ public class Handler {
                 .body(userFlux, User.class);
     }
 
-    public Mono<ServerResponse> listenDeleteUser(ServerRequest serverRequest) {
-        return Mono.just(serverRequest.pathVariable("id"))
-                .map(BigInteger::new)
-                .flatMap(user -> transactionalOperator.transactional(userUseCase.deleteUser(user)))
-                .then(ServerResponse.noContent().build());
+    public Mono<ServerResponse> listenGetUserByIdentification(ServerRequest serverRequest) {
+        String identification = serverRequest.pathVariable("identification");
+        return transactionalOperator.transactional(userUseCase.getUserByIdentification(identification))
+                .flatMap(user -> ServerResponse.ok()
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .bodyValue(user))
+                .switchIfEmpty(ServerResponse.notFound().build());
     }
+
+
 }

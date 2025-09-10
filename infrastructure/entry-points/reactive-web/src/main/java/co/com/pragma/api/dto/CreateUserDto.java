@@ -6,11 +6,10 @@ import java.time.LocalDate;
 public record CreateUserDto(
         String firstName,
         String lastName,
-        String documentId,
+        String identification,
         LocalDate birthDate,
         String address,
         String phone,
         String email,
-        BigDecimal salary
-) {
+        BigDecimal salary) {
 }
