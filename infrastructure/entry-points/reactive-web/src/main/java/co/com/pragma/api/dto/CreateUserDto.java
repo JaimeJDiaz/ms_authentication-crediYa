@@ -6,7 +6,7 @@ import java.time.LocalDate;
 public record CreateUserDto(
         String firstName,
         String lastName,
-        String identification,
+        String docmumentId,
         LocalDate birthDate,
         String address,
         String phone,
