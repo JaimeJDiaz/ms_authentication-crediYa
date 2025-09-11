@@ -1,5 +1,8 @@
 package co.com.pragma.api;
 
+import co.com.pragma.api.dto.LoginRequest;
+import co.com.pragma.api.dto.LoginResponse;
+import co.com.pragma.api.security.JwtUtil;
 import co.com.pragma.model.user.User;
 import co.com.pragma.usecase.user.UserUseCase;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +21,7 @@ import java.math.BigInteger;
 public class Handler {
     private final UserUseCase userUseCase;
     private final TransactionalOperator transactionalOperator;
+    private final JwtUtil jwtUtil;
 
     public Mono<ServerResponse> listenSaveUser(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(User.class)
@@ -73,5 +77,18 @@ public class Handler {
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
 
+    public Mono<ServerResponse> listenLoginUser(ServerRequest serverRequest) {
+        return serverRequest.bodyToMono(LoginRequest.class)
+                .flatMap(loginRequest -> transactionalOperator.transactional(
+                                userUseCase.login(loginRequest.email(), loginRequest.password()))
+                        .flatMap(user -> {
+                            String token = jwtUtil.generateToken(user); // 👈 Genera el JWT
+                            LoginResponse response = new LoginResponse(token);
+                            return ServerResponse.ok()
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .bodyValue(response);
+                        }))
+                .switchIfEmpty(ServerResponse.status(401).bodyValue("Credenciales inválidas"));
+    }
 
 }

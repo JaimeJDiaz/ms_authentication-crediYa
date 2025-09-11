@@ -31,6 +31,8 @@ public class UserEntity {
     String address;
     String phone;
     String email;
+    String password;
     BigDecimal salary;
+    Long roleId;
 }
 

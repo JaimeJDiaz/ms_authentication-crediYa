@@ -11,5 +11,6 @@ public record CreateUserDto(
         String address,
         String phone,
         String email,
+        String password,
         BigDecimal salary) {
 }
