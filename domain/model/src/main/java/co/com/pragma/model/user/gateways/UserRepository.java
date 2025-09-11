@@ -18,6 +18,5 @@ public interface UserRepository {
     Mono<User> update(User user);
 
     Mono<Void> deleteById(BigInteger id);
-
     Mono<User> findByDocumentId(String documentId);
 }
