@@ -1,6 +1,7 @@
 package co.com.pragma.api.exceptionhandler;
 
 
+import co.com.pragma.usecase.user.exceptions.InvalidCredentialsException;
 import co.com.pragma.usecase.user.exceptions.UserEmailAlreadyExistsException;
 import co.com.pragma.usecase.user.exceptions.ValidationException;
 import org.springframework.http.HttpStatus;
@@ -30,6 +31,14 @@ public class GlobalExceptionHandler {
     public Mono<ResponseEntity<String>> handleUserEmailAlreadyExists(UserEmailAlreadyExistsException ex) {
         return Mono.just(
                 ResponseEntity.status(HttpStatus.CONFLICT)
+                        .body(ex.getMessage())
+        );
+    }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public Mono<ResponseEntity<String>> handleInvalidCredentials(InvalidCredentialsException ex) {
+        return Mono.just(
+                ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                         .body(ex.getMessage())
         );
     }

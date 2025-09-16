@@ -5,6 +5,7 @@ import co.com.pragma.model.user.gateways.LogPort;
 import co.com.pragma.model.user.gateways.PasswordEncoder;
 import co.com.pragma.model.user.gateways.RoleRepository;
 import co.com.pragma.model.user.gateways.UserRepository;
+import co.com.pragma.usecase.user.exceptions.InvalidCredentialsException;
 import co.com.pragma.usecase.user.exceptions.UserEmailAlreadyExistsException;
 import co.com.pragma.usecase.user.exceptions.UserNotFoundException;
 import co.com.pragma.usecase.user.exceptions.ValidationException;
@@ -92,28 +93,14 @@ public class UserUseCase {
     }
 
     public Mono<User> login(String email, String password) {
-        log.info("Intentando login para email: " + email);
         return userRepository.findByEmail(email)
-                .doOnNext(user -> log.debug("Usuario encontrado para email: " + email))
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.error("No se encontró usuario para email: " + email);
-                    return Mono.empty();
-                }))
-                .filter(user -> {
-                    boolean matches = passwordEncoder.matches(password, user.getPassword());
-                    log.debug("Password match para email: " + email + " " + matches);
-                    return matches;
-                })
-                .switchIfEmpty(Mono.defer(() -> {
-                    log.error("Password incorrecto para email: " + email);
-                    return Mono.empty();
-                }))
+                .switchIfEmpty(Mono.error(new InvalidCredentialsException("Credenciales invalidas")))
+                .filter(user -> passwordEncoder.matches(password, user.getPassword()))
+                .switchIfEmpty(Mono.error(new InvalidCredentialsException("Credenciales inválidas")))
                 .flatMap(user ->
                         roleRepository.findById(user.getRoleId())
-                                .doOnNext(role -> log.debug("Rol encontrado para usuario : " + email + " " + role))
                                 .map(role -> {
                                     user.setRoleName(role.getName());
-                                    log.info("Login exitoso para email: " + email);
                                     return user;
                                 })
                 );
