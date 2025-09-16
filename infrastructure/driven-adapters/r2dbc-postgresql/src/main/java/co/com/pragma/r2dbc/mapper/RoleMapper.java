@@ -10,6 +10,6 @@ import java.util.function.Function;
 public class RoleMapper implements Function<RoleEntity, Role> {
     @Override
     public Role apply(RoleEntity entity) {
-        return new Role(entity.getId(), entity.getName()); // ajusta según tu modelo
+        return new Role(entity.getId(), entity.getName(), entity.getDescription());
     }
 }

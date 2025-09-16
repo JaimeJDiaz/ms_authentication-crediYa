@@ -7,6 +7,7 @@ import co.com.pragma.model.user.User;
 import co.com.pragma.usecase.user.UserUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.reactive.TransactionalOperator;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -23,6 +24,7 @@ public class Handler {
     private final TransactionalOperator transactionalOperator;
     private final JwtUtil jwtUtil;
 
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Mono<ServerResponse> listenSaveUser(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(User.class)
                 .flatMap(user -> transactionalOperator.transactional(userUseCase.saveUser(user)))
@@ -59,6 +61,7 @@ public class Handler {
                 .body(userFlux, User.class);
     }
 
+
     public Mono<ServerResponse> listenGetUserByIdentification(ServerRequest serverRequest) {
         String identification = serverRequest.pathVariable("identificacion");
         return transactionalOperator.transactional(userUseCase.getUserByIdentification(identification))
@@ -68,6 +71,7 @@ public class Handler {
                 .switchIfEmpty(ServerResponse.notFound().build());
     }
 
+    @PreAuthorize("permitAll()")
     public Mono<ServerResponse> listenLoginUser(ServerRequest serverRequest) {
         return serverRequest.bodyToMono(LoginRequest.class)
                 .flatMap(loginRequest -> transactionalOperator.transactional(
