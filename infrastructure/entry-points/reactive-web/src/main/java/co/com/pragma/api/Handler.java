@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 import java.math.BigInteger;
 
 @Component
+@PreAuthorize("denyAll()")
 @RequiredArgsConstructor
 public class Handler {
     private final UserUseCase userUseCase;
@@ -56,7 +57,7 @@ public class Handler {
 
     public Mono<ServerResponse> listenGetUserByDocumentId(ServerRequest serverRequest) {
         String documentId = serverRequest.pathVariable("documentId");
-        return transactionalOperator.transactional(userUseCase.getUserByDocumentId(documentId))
+        return transactionalOperator.transactional(userUseCase.getUserByIdentification(documentId))
                 .flatMap(user -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(user))
