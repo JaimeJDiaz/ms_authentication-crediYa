@@ -41,10 +41,15 @@ public class UserUseCase {
                                 .switchIfEmpty(Mono.defer(() -> {
                                     String encodedPassword = passwordEncoder.encode(validatedUser.getPassword());
                                     validatedUser.setPassword(encodedPassword);
+                                    validatedUser.setRoleName("CUSTOMER");
+                                    validatedUser.setRoleId(2L);
                                     return userRepository.saveUser(validatedUser)
-                                            .doOnSuccess(savedUser -> log.info(USER_SAVED));
+                                            .doOnSuccess(savedUser -> log.info(USER_SAVED))
+                                            .map(savedUser -> {
+                                                savedUser.setPassword(null);
+                                                return savedUser;
+                                            });
                                 }))
-
                 );
     }
 
@@ -87,12 +92,28 @@ public class UserUseCase {
     }
 
     public Mono<User> login(String email, String password) {
+        log.info("Intentando login para email: " + email);
         return userRepository.findByEmail(email)
-                .filter(user -> passwordEncoder.matches(password, user.getPassword()))
+                .doOnNext(user -> log.debug("Usuario encontrado para email: " + email))
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.error("No se encontró usuario para email: " + email);
+                    return Mono.empty();
+                }))
+                .filter(user -> {
+                    boolean matches = passwordEncoder.matches(password, user.getPassword());
+                    log.debug("Password match para email: " + email + " " + matches);
+                    return matches;
+                })
+                .switchIfEmpty(Mono.defer(() -> {
+                    log.error("Password incorrecto para email: " + email);
+                    return Mono.empty();
+                }))
                 .flatMap(user ->
                         roleRepository.findById(user.getRoleId())
+                                .doOnNext(role -> log.debug("Rol encontrado para usuario : " + email + " " + role))
                                 .map(role -> {
-                                    user.setRoleName(role.toString()); // 👈 Enlaza el rol al usuario
+                                    user.setRoleName(role.getName());
+                                    log.info("Login exitoso para email: " + email);
                                     return user;
                                 })
                 );

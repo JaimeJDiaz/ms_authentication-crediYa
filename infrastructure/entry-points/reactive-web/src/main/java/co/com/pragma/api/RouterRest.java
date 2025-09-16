@@ -17,7 +17,7 @@ public class RouterRest {
                 .GET("/api/v1/usuarios/{id}", handler::listenGetUser)
                 .GET("/api/v1/usuarios", handler::listenGetAllUsers)
                 .GET("/api/v1/usuarios/identificacion/{identificacion}", handler::listenGetUserByIdentification)
-                .POST("/api/v1/usuarios/login", handler::listenLoginUser) // 👈 Nueva ruta agregada
+                .POST("/api/v1/usuarios/login", handler::listenLoginUser)
                 .build();
     }
 }
