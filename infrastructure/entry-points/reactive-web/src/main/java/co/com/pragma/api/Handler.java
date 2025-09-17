@@ -17,6 +17,9 @@ import reactor.core.publisher.Mono;
 
 import java.math.BigInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Component
 @PreAuthorize("denyAll()")
 @RequiredArgsConstructor
@@ -24,6 +27,8 @@ public class Handler {
     private final UserUseCase userUseCase;
     private final TransactionalOperator transactionalOperator;
     private final JwtUtil jwtUtil;
+
+    private static final Logger log = LoggerFactory.getLogger(Handler.class);
 
     @PreAuthorize("hasAuthority('ADMIN')")
     public Mono<ServerResponse> listenSaveUser(ServerRequest serverRequest) {
@@ -71,10 +76,13 @@ public class Handler {
                 .body(userFlux, User.class);
     }
 
-
+    @PreAuthorize("hasRole('ROLE_INTERNAL_SERVICE')")
     public Mono<ServerResponse> listenGetUserByIdentification(ServerRequest serverRequest) {
         String identification = serverRequest.pathVariable("identificacion");
+        log.info("[listenGetUserByIdentification] Request recibida para identificacion: {}", identification);
         return transactionalOperator.transactional(userUseCase.getUserByIdentification(identification))
+                .doOnNext(user -> log.info("[listenGetUserByIdentification] Usuario encontrado para identificacion: {}", identification))
+                .doOnError(e -> log.error("[listenGetUserByIdentification] Error al buscar usuario para identificacion: {} - {}", identification, e.getMessage()))
                 .flatMap(user -> ServerResponse.ok()
                         .contentType(MediaType.APPLICATION_JSON)
                         .bodyValue(user))
