@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: ${MS_AUTHENTICATION_PORT:8081}
 spring:
   application:
     name: "ms-authentication"
@@ -11,7 +11,10 @@ spring:
       path: "/h2"
   profiles:
     include: null
-
+  r2dbc:
+    url: ${SPRING_R2DBC_URL:r2dbc:postgresql://db-authentication:5432/crediya_authentication_db}
+    username: ${SPRING_R2DBC_USERNAME:crediya_user}
+    password: ${SPRING_R2DBC_PASSWORD:StrongPassword123!}
 management:
   endpoints:
     web:
@@ -21,15 +24,17 @@ management:
     health:
       probes:
         enabled: true
+  health:
+    circuitbreakers:
+      enabled: true
 cors:
-  allowed-origins: "http://localhost:4200,http://localhost:8080"
+  allowed-origins: "http://localhost:4200,http://localhost:8080,http://localhost:8081"
 
 adapters:
   r2dbc:
-    host: "localhost"
-    port: 5432
-    database: "ms_users_db"
-    schema: "public"
-    username: "postgres"
-    password: "admin"
-
+    host: ${DB_HOST:localhost}
+    port: ${DB_AUTHENTICATION_PORT:5433}
+    database: ${DB_AUTHENTICATION_NAME:ms_authentication_db}
+    schema: ${DB_SCHEMA:public}
+    username: ${POSTGRES_USER:crediya_user}
+    password: ${POSTGRES_PASSWORD:StrongPassword123!}

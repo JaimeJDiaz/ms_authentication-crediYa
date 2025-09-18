@@ -1,19 +1,10 @@
-# Dockerfile para ms-authentication (Spring Boot + Java 23)
+FROM openjdk:23-jdk-slim
 
-# Etapa 1: Build
-FROM eclipse-temurin:23-jdk AS build
 WORKDIR /app
-COPY . .
-RUN ./gradlew clean build -x test
 
-# Etapa 2: Imagen final
-FROM eclipse-temurin:23-jre-alpine
-WORKDIR /app
-COPY --from=build /app/build/libs/*.jar app.jar
+# Copiar el JAR ya construido
+COPY applications/app-service/build/libs/*.jar app.jar
 
-EXPOSE 8080
-
-# ENV SPRING_PROFILES_ACTIVE=prod
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
-
+EXPOSE 8081
+ENV JAVA_OPTS="-XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0"
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
